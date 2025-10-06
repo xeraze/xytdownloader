@@ -28,7 +28,7 @@ async function downloadMedia(url, format) {
         console.log(`Файл: ${outputFilePath}`);
         console.log(`--------------------------\n`);
         console.log('Начинается скачивание...');
-        
+
         const stream = ytdl(url, filterOptions);
         
         stream.pipe(fs.createWriteStream(outputFilePath));
@@ -52,7 +52,7 @@ async function downloadMedia(url, format) {
 }
 
 async function runDownloader() {
-    console.log(`\n--- YouTube CLI Downloader (Node.js) ---`);
+    console.log(`\n--- XYT CLI Downloader (Node.js) ---`);
     console.log(`Автор: xeraze`);
     console.log(`----------------------------------------`);
     
