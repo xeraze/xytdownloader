@@ -1,10 +1,10 @@
 {
-  "name": "youtube-cli-downloader",
+  "name": "xyt-downloader-cli",
   "version": "1.0.0",
   "description": "A console utility for downloading YouTube videos and audio using Node.js.",
-  "main": "yt-downloader.js",
+  "main": "main.js",
   "scripts": {
-    "start": "node yt-downloader.js"
+    "start": "node main.js"
   },
   "keywords": [
     "youtube",
@@ -13,7 +13,7 @@
     "cli"
   ],
   "author": "xeraze",
-  "license": "MIT",
+  "license": "ISC",
   "dependencies": {
     "ytdl-core": "^4.11.5",
     "inquirer": "^8.2.4"
