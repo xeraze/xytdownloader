@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>XYT Downloader Web</title>
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="socket.io/socket.io.js"></script>
     <style>
         body { font-family: sans-serif; background: #121212; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .card { background: #1e1e1e; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 400px; text-align: center; }
@@ -32,43 +32,50 @@
 
     <script>
         const socket = io();
-        const btn = document.getElementById('downloadBtn');
-        const status = document.getElementById('status');
-        const pBar = document.getElementById('pBar');
-        const pContainer = document.getElementById('pContainer');
+const btn = document.getElementById('downloadBtn');
+const status = document.getElementById('status');
+const pBar = document.getElementById('pBar');
+const pContainer = document.getElementById('pContainer');
 
-        btn.onclick = () => {
-            const url = document.getElementById('url').value;
-            const format = document.getElementById('format').value;
-            if(!url) return alert('Введите URL');
-
-            pContainer.style.display = 'block';
-            status.innerText = 'Получение информации...';
-            socket.emit('download-request', { url, format });
-            btn.disabled = true;
-        };
-
-        socket.on('video-info', (data) => {
-            status.innerText = 'Качаем: ' + data.title;
-        });
-
-        socket.on('progress', (data) => {
-            pBar.style.width = data.percent + '%';
-            status.innerText = `Загружено: ${data.percent}% (${data.downloaded}MB / ${data.total}MB)`;
-        });
-
-        socket.on('finished', (data) => {
-    status.innerHTML = `<a href="${data.fileUrl}" id="autoDownload" download style="color: #00ff00;">✅ Нажмите здесь, если загрузка не началась</a>`;
+btn.onclick = () => {
+    const url = document.getElementById('url').value;
+    const format = document.getElementById('format').value;
     
-    document.getElementById('autoDownload').click();
+    if(!url) {
+        status.innerText = '❌ Введите ссылку!';
+        return;
+    }
+
+    pContainer.style.display = 'block';
+    pBar.style.width = '0%';
+    status.innerText = '⏳ Подключение к серверу...';
+    
+    socket.emit('download-request', { url, format });
+    btn.disabled = true;
+};
+
+socket.on('video-info', (data) => {
+    status.innerText = '✅ Видео найдено: ' + data.title;
+});
+
+socket.on('progress', (data) => {
+    pBar.style.width = data.percent + '%';
+    status.innerText = `📥 Загрузка: ${data.percent}% (${data.downloaded}MB / ${data.total}MB)`;
+});
+
+socket.on('finished', (data) => {
+    status.innerHTML = `<a href="${data.fileUrl}" id="autoDownload" download style="color: #00ff00; font-weight: bold;">✅ Готово! Нажмите для сохранения</a>`;
+    
+    const link = document.getElementById('autoDownload');
+    link.click();
     
     btn.disabled = false;
 });
 
-        socket.on('error', (msg) => {
-            status.innerText = '❌ ' + msg;
-            btn.disabled = false;
-        });
+socket.on('error', (msg) => {
+    status.innerText = '❌ ' + msg;
+    btn.disabled = false;
+});
     </script>
 </body>
 </html>
