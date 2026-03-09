@@ -58,9 +58,12 @@
         });
 
         socket.on('finished', (data) => {
-            status.innerHTML = `<a href="${data.fileUrl}" download style="color: #00ff00;">✅ Нажмите здесь, чтобы сохранить файл</a>`;
-            btn.disabled = false;
-        });
+    status.innerHTML = `<a href="${data.fileUrl}" id="autoDownload" download style="color: #00ff00;">✅ Нажмите здесь, если загрузка не началась</a>`;
+    
+    document.getElementById('autoDownload').click();
+    
+    btn.disabled = false;
+});
 
         socket.on('error', (msg) => {
             status.innerText = '❌ ' + msg;
