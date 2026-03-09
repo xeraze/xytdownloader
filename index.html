@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>XYT Downloader Web</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body { font-family: sans-serif; background: #121212; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: #1e1e1e; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 400px; text-align: center; }
+        input, select, button { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; box-sizing: border-box; }
+        button { background: #e30613; color: white; font-weight: bold; cursor: pointer; }
+        .progress-bar { width: 0%; height: 10px; background: #00ff00; transition: width 0.3s; border-radius: 5px; }
+        .progress-container { width: 100%; background: #333; height: 10px; border-radius: 5px; margin-top: 20px; display: none; }
+        #status { font-size: 0.9rem; color: #bbb; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>XYT Downloader</h2>
+        <input type="text" id="url" placeholder="Вставьте ссылку на YouTube">
+        <select id="format">
+            <option value="video">Видео (.mp4)</option>
+            <option value="audio">Аудио (.mp3)</option>
+        </select>
+        <button id="downloadBtn">Скачать</button>
+
+        <div class="progress-container" id="pContainer">
+            <div class="progress-bar" id="pBar"></div>
+        </div>
+        <div id="status">Готов к работе</div>
+    </div>
+
+    <script>
+        const socket = io();
+        const btn = document.getElementById('downloadBtn');
+        const status = document.getElementById('status');
+        const pBar = document.getElementById('pBar');
+        const pContainer = document.getElementById('pContainer');
+
+        btn.onclick = () => {
+            const url = document.getElementById('url').value;
+            const format = document.getElementById('format').value;
+            if(!url) return alert('Введите URL');
+
+            pContainer.style.display = 'block';
+            status.innerText = 'Получение информации...';
+            socket.emit('download-request', { url, format });
+            btn.disabled = true;
+        };
+
+        socket.on('video-info', (data) => {
+            status.innerText = 'Качаем: ' + data.title;
+        });
+
+        socket.on('progress', (data) => {
+            pBar.style.width = data.percent + '%';
+            status.innerText = `Загружено: ${data.percent}% (${data.downloaded}MB / ${data.total}MB)`;
+        });
+
+        socket.on('finished', (data) => {
+            status.innerHTML = `<a href="${data.fileUrl}" download style="color: #00ff00;">✅ Нажмите здесь, чтобы сохранить файл</a>`;
+            btn.disabled = false;
+        });
+
+        socket.on('error', (msg) => {
+            status.innerText = '❌ ' + msg;
+            btn.disabled = false;
+        });
+    </script>
+</body>
+</html>
