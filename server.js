@@ -9,7 +9,11 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-app.use(express.static('public'));
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.use('/downloads', express.static(path.join(__dirname, 'downloads')));
 
 io.on('connection', (socket) => {
     console.log('Пользователь подключен');
@@ -38,10 +42,12 @@ io.on('connection', (socket) => {
                 });
             });
 
-            const filePath = path.join(__dirname, 'public', 'downloads', fileName);
-            if (!fs.existsSync(path.join(__dirname, 'public', 'downloads'))) {
-                fs.mkdirSync(path.join(__dirname, 'public', 'downloads'));
+            const downloadDir = path.join(__dirname, 'downloads');
+            if (!fs.existsSync(downloadDir)) {
+                fs.mkdirSync(downloadDir);
             }
+
+            const filePath = path.join(downloadDir, fileName);
 
             stream.pipe(fs.createWriteStream(filePath)).on('finish', () => {
                 socket.emit('finished', { fileUrl: `/downloads/${encodeURIComponent(fileName)}` });
@@ -51,6 +57,11 @@ io.on('connection', (socket) => {
             socket.emit('error', 'Ошибка: ' + err.message);
         }
     });
+});
+
+const PORT = 3000;
+server.listen(PORT, () => {
+    console.log(`Сервер запущен: http://localhost:${PORT}`);
 });
 
 const PORT = 3000;
